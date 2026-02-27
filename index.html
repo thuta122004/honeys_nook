@@ -132,22 +132,23 @@
 
     <script>
         const rawPaths = [
-            "honey/Sweet_Honey_2026-02-14.jpg",
-            "honey/Honey_at_Park_2026-01-28.jpg",
-            "honey/January_Hugs_2026-01-15.jpg",
-            "nature/Forest_Walk_2026-01-10.jpg",
-            "food/Pasta_Night_2026-01-26.jpg",
-            "nature/Winter_Sun_2026-02-01.jpg",
-            "honey/Morning_Coffee_2026-01-05.jpg",
-            "food/Waffle_Breakfast_2026-01-12.jpg"
+            "honey/PhotoBooth_2026-02-27.jpg",
+            "honey/PhotoBooth_2026-02-27.mp4",
+            "honey/Photo_Booth_2026-02-27.jpg",
+            "honey/Photo_Booth_2026-02-27.mp4"
         ];
 
         let activeCat = 'all';
 
         const photoLibrary = rawPaths.map(path => {
-            const [folder, file] = path.split('/');
+            const parts = path.split('/');
+            const folder = parts[0];
+            const file = parts[1];
+            
             const dateMatch = file.match(/(\d{4}-\d{1,2}-\d{1,2})/);
-            const title = file.replace(/_?\d{4}-\d{1,2}-\d{1,2}\.jpg$/, '').replace(/_/g, ' ');
+            
+            const title = file.replace(/_?\d{4}-\d{1,2}-\d{1,2}\.(jpg|mp4)$/, '').replace(/_/g, ' ');
+            
             const dateObj = new Date(dateMatch ? dateMatch[0] : "2026-01-01");
 
             return {
@@ -231,8 +232,9 @@
                 card.onclick = () => openDetail(photo.src, photo.title, dateStr, photo.category);
                 
                 card.innerHTML = `
-                    <div class="aspect-[4/5] overflow-hidden bg-stone-50">
+                    <div class="aspect-[4/5] overflow-hidden bg-stone-50 relative">
                         <img src="${photo.src}" class="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-700" loading="lazy">
+                        ${photo.src.endsWith('.mp4') ? '<i class="fa-solid fa-video absolute top-3 right-3 text-white/70 bg-black/30 p-2 rounded-full text-xs"></i>' : ''}
                     </div>
                     <div class="mt-5 text-center px-2">
                         <h3 class="handwritten text-3xl text-stone-800 tracking-tight">${photo.title}</h3>
