@@ -52,12 +52,12 @@
 <body id="mainBody" class="bg-honey-lemon min-h-screen text-stone-800 pb-12">
 
     <div id="detailModal" class="fixed inset-0 z-50 flex items-start justify-center p-4 pt-20 md:pt-10 bg-stone-900/60 backdrop-blur-lg opacity-0 pointer-events-none transition-all duration-500 overflow-y-auto" onclick="closeDetail()">
-        <button class="fixed top-6 right-6 text-white text-3xl p-2 hover:rotate-90 transition-transform duration-300 z-[60]">
+        <button class="fixed top-6 right-6 text-white text-3xl p-2">
             <i class="fa-solid fa-xmark"></i>
         </button>
         <div class="modal-content bg-white p-3 pb-16 md:pb-24 rounded-sm shadow-2xl max-w-lg w-full transform scale-90 transition-transform duration-500 border-b-[30px] border-white mb-12 mx-auto" onclick="event.stopPropagation()">
-            <div class="aspect-[4/5] overflow-hidden bg-stone-100">
-                <img id="modalImg" src="" class="w-full h-full object-cover">
+            <div class="aspect-[4/5] overflow-hidden bg-stone-100 flex items-center justify-center">
+                <div id="modalContainer" class="w-full h-full"></div>
             </div>
             <div class="mt-8 text-center px-4">
                 <h2 id="modalTitle" class="handwritten text-4xl md:text-5xl text-stone-800"></h2>
@@ -155,13 +155,21 @@
                 src: `./images/${path}`,
                 category: folder,
                 title,
-                date: dateObj
+                date: dateObj,
+                isVideo: path.endsWith('.mp4')
             };
         });
 
-        function openDetail(src, title, date, cat) {
+        function openDetail(src, title, date, cat, isVideo) {
             const modal = document.getElementById('detailModal');
-            document.getElementById('modalImg').src = src;
+            const container = document.getElementById('modalContainer');
+            
+            if(isVideo) {
+                container.innerHTML = `<video src="${src}" class="w-full h-full object-contain" controls autoplay playsinline></video>`;
+            } else {
+                container.innerHTML = `<img src="${src}" class="w-full h-full object-cover">`;
+            }
+            
             document.getElementById('modalTitle').innerText = title;
             document.getElementById('modalDate').innerText = date;
             document.getElementById('modalCat').innerText = cat;
@@ -173,6 +181,7 @@
             const modal = document.getElementById('detailModal');
             modal.classList.remove('active');
             document.body.style.overflow = 'auto';
+            document.getElementById('modalContainer').innerHTML = '';
         }
 
         function updateSpace(cat, btn) {
@@ -229,12 +238,23 @@
                 
                 card.className = `polaroid-card bg-white p-3 pb-12 rounded-sm shadow-xl relative border-b-[18px] border-white group`;
                 card.style.animationDelay = `${index * 0.05}s`;
-                card.onclick = () => openDetail(photo.src, photo.title, dateStr, photo.category);
+                card.onclick = () => openDetail(photo.src, photo.title, dateStr, photo.category, photo.isVideo);
                 
+                let mediaElement = '';
+                if(photo.isVideo) {
+                    mediaElement = `
+                        <video src="${photo.src}" class="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-700" 
+                               autoplay muted loop playsinline>
+                        </video>
+                        <i class="fa-solid fa-video absolute top-3 right-3 text-white/70 bg-black/30 p-2 rounded-full text-xs"></i>
+                    `;
+                } else {
+                    mediaElement = `<img src="${photo.src}" class="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-700" loading="lazy">`;
+                }
+
                 card.innerHTML = `
                     <div class="aspect-[4/5] overflow-hidden bg-stone-50 relative">
-                        <img src="${photo.src}" class="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-700" loading="lazy">
-                        ${photo.src.endsWith('.mp4') ? '<i class="fa-solid fa-video absolute top-3 right-3 text-white/70 bg-black/30 p-2 rounded-full text-xs"></i>' : ''}
+                        ${mediaElement}
                     </div>
                     <div class="mt-5 text-center px-2">
                         <h3 class="handwritten text-3xl text-stone-800 tracking-tight">${photo.title}</h3>
